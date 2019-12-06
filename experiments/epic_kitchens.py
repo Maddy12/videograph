@@ -91,6 +91,11 @@ def train_model_videograph():
     t1 = time.time()
     # features are extracting using datasets.epic_kitchens.i3d_keras_epic_kitchens()
     # we use out-of-box i3d (pre-trained on kinetics, NOT fine-tuned on epic-kitchens) with last conv feature 7*7*1024 'mixed_5c'
+    # to get a better performance, you need to write code to randomly sample new frames and extract their features every new epoch
+    # please use this function to random sampling, instead of uniform sampling: epic_kitchens.__random_sample_frames_per_video_for_i3d()
+    # then extract their features, as done in: epic_kitchens._901_extract_features_i3d()
+    # then train on the extracted features. Please do so in every epoch. It's computationally heavy, but you cannot avoid random sampling to get better results.
+    # Even better results if you replace I3D with a 2D/3D CNN that's previously fine-tuned on Epic-Kitchens
     (x_tr, x_te) = utils.h5_load_multi(features_path, ['x_tr', 'x_te'])
     t2 = time.time()
 
