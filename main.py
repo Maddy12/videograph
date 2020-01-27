@@ -73,7 +73,6 @@ exp_breakfast_activities.train_model_on_video_features_i3d()
 #########################
 # here, you can find code to reproduce the graph diagram, see figure 7 in the paper.
 an_breakfast._07_visualize_graph_edges()
-exp_breakfast_unit_actions.train_model_on_pickled_features()
 
 ########################################################################
 ########################################################################
@@ -84,7 +83,7 @@ exp_breakfast_unit_actions.train_model_on_pickled_features()
 #########################
 # 2.2 Train Models
 #########################
-
+exp_breakfast_unit_actions.train_model_on_pickled_features()
 
 ########################################################################
 ########################################################################
@@ -92,9 +91,38 @@ exp_breakfast_unit_actions.train_model_on_pickled_features()
 ########################################################################
 ########################################################################
 
-# train videograph on features of Epic_Kitchens
-# from experiments import Epic_Kitchens
-# Epic_Kitchens.train_model_videograph()
+#########################
+# 1.1 Prepare Data
+#########################
+
+# prepare some annotations
+ds_epic_kitchens._101_prepare_annot_id_of_many_shots()
+ds_epic_kitchens._102_prepare_data_splits()
+ds_epic_kitchens._103_prepare_many_shots_noun_verb_action_ids()
+
+# relative pathes of frames
+ds_epic_kitchens._201_prepare_video_frames_path_dict()
+ds_epic_kitchens._202_spit_video_frames_relative_pathes()
+
+# sample frames from the videos
+ds_epic_kitchens._301_sample_frame_pathes_i3d()
+
+# extract frames from videos
+ds_epic_kitchens._401_extract_features_i3d()
+ds_epic_kitchens._501_pickle_features_i3d()
+
+# generate centroids
+ds_epic_kitchens._602_generate_nodes(128, 1024)
+
+# train videograph on features of Epic_Kitchens.
+# this gets you inferior results, as it uses the same sampled frames throughtout the entire training
+exp_epic_kitchens.train_model_on_pickled_features()
+
+# but to reproduce the results, you need to sample frames every epoch, for this, you use this
+exp_epic_kitchens.train_model_on_video_frames()
+
+# if you want even better results (which we did NOT consider in our paper), you can fine-tuned I3D on Epic-Kitchens
+# but you have to implement this by your self
 
 ########################################################################
 # 4.0 Experiments on Charades

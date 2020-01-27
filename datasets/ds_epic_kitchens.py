@@ -771,8 +771,8 @@ def _501_pickle_features_i3d():
 def _602_generate_nodes(n_nodes, n_dims):
     pass
 
-    n1_path = Pth('EPIC-Kitchens/features/nodes_random_%d.pkl', (n_nodes,))
-    n2_path = Pth('EPIC-Kitchens/features/nodes_sobol_%d.pkl', (n_nodes,))
+    n1_path = Pth('EPIC-Kitchens/features_centroid/features_random_%d.pkl', (n_nodes,))
+    n2_path = Pth('EPIC-Kitchens/features_centroid/features_sobol_%d.pkl', (n_nodes,))
 
     # nodes as random vectors
     n1 = np.random.rand(n_nodes, n_dims)

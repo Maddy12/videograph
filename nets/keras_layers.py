@@ -490,6 +490,73 @@ class DepthwiseDilatedConv1DLayer(Layer):
         base_config = super(DepthwiseDilatedConv1DLayer, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
+class DepthwiseDenseLayer(Layer):
+    """
+    MLP for the temporal dimension. Ignore the side dimension (i.e. ignore width and height), and the channel dimension.
+    """
+
+    def __init__(self, n_units_out, **kwargs):
+        self.n_timesteps_out = n_units_out
+
+        super(DepthwiseDenseLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        """
+        Input shape is (None, 10, 7, 7, 1024)
+        :param input_shape:
+        :return:
+        """
+
+        assert len(input_shape) == 5
+
+        _, self.n_timesteps_in, self.side_dim1, self.side_dim2, self.n_channels = input_shape
+
+        initializer = contrib_layers.xavier_initializer()
+
+        weight_shape = [self.n_channels, self.n_timesteps_in, self.n_timesteps_out]
+        bias_shape = [self.n_channels, 1, self.n_timesteps_out]
+
+        with tf.variable_scope(self.name) as scope:
+            self.conv_weights = tf.get_variable('dense_weights', shape=weight_shape, initializer=initializer)
+            self.conv_biases = tf.get_variable('dense_biases', shape=bias_shape, initializer=tf.constant_initializer(0.1))
+
+        self.trainable_weights = [self.conv_weights, self.conv_biases]
+
+        super(DepthwiseDenseLayer, self).build(input_shape)
+
+    def compute_output_shape(self, input_shape):
+        output_dim = (None, self.n_timesteps_out, self.side_dim1, self.side_dim2, self.n_channels)
+        return output_dim
+
+    def call(self, input, mask=None):
+        # inputs is of shape (None, 10, 7, 7, 1024)
+
+        # hide the side_dim with the batch_size
+        tensor = tf.transpose(input, (4, 0, 2, 3, 1))  # (1024, None, 7, 7, 10)
+        tensor = tf.reshape(tensor, (self.n_channels, -1, self.n_timesteps_in))
+
+        # tensor: (1024, None, 10)
+        # weight: (512, 10, 4)
+        # bias:  (1024, None, 4)
+
+        # apply weight and bias
+        tensor = tf.matmul(tensor, self.conv_weights)  # (1024, None, 4)
+        tensor = tf.add(tensor, self.conv_biases)  # (1024, None, 4)
+
+        # reshape and transpose to get the desired output
+        tensor = tf.reshape(tensor, (self.n_channels, -1, self.side_dim1, self.side_dim2, self.n_timesteps_out))  # (1024, None, 7, 7, 4)
+        tensor = tf.transpose(tensor, (1, 4, 2, 3, 0))  # (None, 4, 7, 7, 1024)
+
+        return tensor
+
+    def get_config(self):
+        """
+        For rebuilding models on load time.
+        """
+        config = {'n_units_out': self.n_timesteps_out}
+        base_config = super(DepthwiseDenseLayer, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
 class TimeceptionTemporalBlock(Layer):
     """
     Given tensor, split it into
@@ -604,3 +671,64 @@ class TimeceptionTemporalBlock(Layer):
         output = tf.concat([t_0, t_3, t_5, t_7, t_1])
         _ = 10
         return output
+
+class ConvOverSpaceLayer(Layer):
+    """
+    Fast implementation of 1*1 spatial convolution.
+    """
+
+    def __init__(self, n_channels_out, **kwargs):
+        self.n_channels_out = n_channels_out
+        super(ConvOverSpaceLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        """
+        Input shape is (None, 7, 7, 1024)
+        :param input_shape:
+        :return:
+        """
+
+        n_channels_in = input_shape[3]
+        n_channels_out = self.n_channels_out
+        feat_map_side_dim = input_shape[2]
+
+        initializer = contrib_layers.xavier_initializer()
+        self.feat_map_side_dim = feat_map_side_dim
+
+        weight_shape = [n_channels_in, n_channels_out]
+        bias_shape = [n_channels_out]
+
+        with tf.variable_scope(self.name) as scope:
+            self.conv_weights = tf.get_variable('conv_weights', shape=weight_shape, initializer=initializer)
+            self.conv_biases = tf.get_variable('conv_biases', shape=bias_shape, initializer=tf.constant_initializer(0.1))
+
+        self.trainable_weights = [self.conv_weights, self.conv_biases]
+
+        super(ConvOverSpaceLayer, self).build(input_shape)
+
+    def compute_output_shape(self, input_shape):
+        output_dim = (None, self.feat_map_side_dim, self.feat_map_side_dim, self.n_channels_out)
+        return output_dim
+
+    def call(self, input, mask=None):
+        # inputs is of shape (None, 7, 7, 1024)
+
+        # feedforward
+        input_shape = input.get_shape().as_list()
+        feat_map_side_dim = input_shape[1]
+        n_feat_maps = input_shape[3]
+
+        tensor = tf.reshape(input, (-1, n_feat_maps))
+        tensor = tf.matmul(tensor, self.conv_weights)
+        tensor = tf.reshape(tensor, (-1, feat_map_side_dim, feat_map_side_dim, self.n_channels_out))
+
+        tensor = tf.add(tensor, self.conv_biases)
+        return tensor
+
+    def get_config(self):
+        """
+        For rebuilding models on load time.
+        """
+        config = {'n_channels_out': self.n_channels_out}
+        base_config = super(ConvOverSpaceLayer, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
