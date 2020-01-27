@@ -44,8 +44,10 @@ from keras.utils.data_utils import get_file
 from keras import backend as K
 
 WEIGHTS_NAME = ['rgb_kinetics_only', 'rgb_imagenet_and_kinetics']
-from core import utils, const as c
+
 from nets.keras_layers import MaxLayer, MeanLayer
+from core import utils, const as c
+from core.utils import Path as Pth
 
 def _obtain_input_shape(input_shape, default_frame_size, min_frame_size, default_num_frames, min_num_frames, data_format, require_flatten, weights=None):
     """Internal utility to compute/validate the model's input shape.
@@ -576,8 +578,7 @@ def Inception_Inflated3d_Backbone():
     """
 
     input_shape = (8, 224, 224, 3)
-    model_name = 'rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5'
-    weights_path = '%s/Charades/baseline_models/i3d-keras/%s' % (c.DATA_ROOT_PATH, model_name)
+    weights_path = Pth('Keras_Models/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5')
 
     # Determine proper input shape
     img_input = Input(shape=input_shape)
@@ -750,7 +751,7 @@ def __load_weights(model, weights):
     elif weights == WEIGHTS_NAME[1]:  # rgb_imagenet_and_kinetics
         model_name = 'rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5'
 
-    weights_path = '%s/Charades/baseline_models/i3d-keras/%s' % (c.DATA_ROOT_PATH, model_name)
+    weights_path = Pth('Keras_Models/baseline_models/i3d-keras/%s', (model_name))
     model.load_weights(weights_path, by_name=True)
 
     return model

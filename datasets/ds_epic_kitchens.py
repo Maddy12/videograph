@@ -66,6 +66,8 @@ from core import utils, image_utils, configs, sobol
 from core.utils import Path as Pth
 from core import const as c
 
+from nets.i3d_keras_epic_kitchens import Inception_Inflated3d_Backbone
+
 # region Constants
 
 N_NOUNS_MANY_SHOT = 71
@@ -76,18 +78,18 @@ N_ACTNS_MANY_SHOT = 819
 
 # region Prepare Annotation: Nouns, Verbs, Actions
 
-def _702_prepare_annot_id_of_many_shots():
+def _101_prepare_annot_id_of_many_shots():
     """
     Prepare list of annot ids whose both noun and verb is many_shot.
     :return:
     """
 
-    many_shot_noun_csv_path = Pth('EPIC-Kitchens/annotations/EPIC_many_shot_nouns.csv')
-    many_shot_verb_csv_path = Pth('EPIC-Kitchens/annotations/EPIC_many_shot_verbs.csv')
-    annot_lines_path = Pth('EPIC-Kitchens/annotations/EPIC_train_action_labels.csv')
-    annot_idxes_many_shots_noun_verb_path = Pth('EPIC-Kitchens/annotations/annot_idxes_many_shots_noun_verb.pkl')
-    annot_invalid_path = Pth('EPIC-Kitchens/annotations/EPIC_train_invalid_labels.csv')
-    video_info_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_video_info_dict.pkl')
+    many_shot_noun_csv_path = Pth('EPIC-Kitchens/annotation/EPIC_many_shot_nouns.csv')
+    many_shot_verb_csv_path = Pth('EPIC-Kitchens/annotation/EPIC_many_shot_verbs.csv')
+    annot_lines_path = Pth('EPIC-Kitchens/annotation/EPIC_train_action_labels.csv')
+    annot_idxes_many_shots_noun_verb_path = Pth('EPIC-Kitchens/annotation/annot_idxes_many_shots_noun_verb.pkl')
+    annot_invalid_path = Pth('EPIC-Kitchens/annotation/EPIC_train_invalid_labels.csv')
+    video_info_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_video_info_dict.pkl')
 
     many_shot_noun = utils.csv_load(many_shot_noun_csv_path)
     many_shot_verb = utils.csv_load(many_shot_verb_csv_path)
@@ -147,15 +149,15 @@ def _702_prepare_annot_id_of_many_shots():
     annot_idxes_many_shots_noun_verb = np.array(annot_idxes_many_shots_noun_verb)
     utils.pkl_dump(annot_idxes_many_shots_noun_verb, annot_idxes_many_shots_noun_verb_path)
 
-def _703_prepare_data_splits():
+def _102_prepare_data_splits():
     """
     Sample fram pathes for the i3d model.
     :return:
     """
 
-    annot_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_train_action_labels_dict.pkl')
-    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotations/annot_idxes_many_shots_noun_verb.pkl')
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
+    annot_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_train_action_labels_dict.pkl')
+    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotation/annot_idxes_many_shots_noun_verb.pkl')
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
 
     annot_idxes_many_shots = utils.pkl_load(annot_idxes_many_shots_path)
     annot_dict = utils.pkl_load(annot_dict_path)
@@ -200,7 +202,7 @@ def _703_prepare_data_splits():
     # save video names
     utils.pkl_dump((video_names_tr, video_names_te), video_names_splits_path)
 
-def _704_prepare_many_shots_noun_verb_action_ids():
+def _103_prepare_many_shots_noun_verb_action_ids():
     """
     Prepeare two dicts of nouns and verbs to convert from id to many_shot id. All ids are zero-indexed.
     71 noun classes
@@ -209,12 +211,12 @@ def _704_prepare_many_shots_noun_verb_action_ids():
     :return:
     """
 
-    annot_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_train_action_labels_dict.pkl')
-    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotations/annot_idxes_many_shots_noun_verb.pkl')
-    noun_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotations/noun_ids_many_shots_dict.pkl')
-    verb_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotations/verb_ids_many_shots_dict.pkl')
-    actn_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotations/actn_ids_many_shots_dict.pkl')
-    actn_ids_many_shots_list_path = Pth('EPIC-Kitchens/annotations//EPIC_many_shot_actions.csv')
+    annot_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_train_action_labels_dict.pkl')
+    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotation/annot_idxes_many_shots_noun_verb.pkl')
+    noun_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotation/noun_ids_many_shots_dict.pkl')
+    verb_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotation/verb_ids_many_shots_dict.pkl')
+    actn_ids_many_shots_dict_path = Pth('EPIC-Kitchens/annotation/actn_ids_many_shots_dict.pkl')
+    actn_ids_many_shots_list_path = Pth('EPIC-Kitchens/annotation//EPIC_many_shot_actions.csv')
 
     annot_idxes_many_shots = utils.pkl_load(annot_idxes_many_shots_path)
     annot_dict = utils.pkl_load(annot_dict_path)
@@ -239,109 +241,6 @@ def _704_prepare_many_shots_noun_verb_action_ids():
     utils.pkl_dump(many_shot_noun_ids_dict, noun_ids_many_shots_dict_path)
     utils.pkl_dump(many_shot_verb_ids_dict, verb_ids_many_shots_dict_path)
     utils.pkl_dump(many_shot_actn_ids_dict, actn_ids_many_shots_dict_path)
-
-def _705_sample_frame_pathes_i3d():
-    """
-    Sample fram pathes for the i3d model.
-    According to values here, we will have number of samples:
-    total, train, test: 27908, 21427, 6481
-    """
-
-    noun_ids_dict_path = Pth('EPIC-Kitchens/annotations/noun_ids_many_shots_dict.pkl')
-    verb_ids_dict_path = Pth('EPIC-Kitchens/annotations/verb_ids_many_shots_dict.pkl')
-
-    video_info_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_video_info_dict.pkl')
-    annot_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_train_action_labels_dict.pkl')
-    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotations/annot_idxes_many_shots_noun_verb.pkl')
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-
-    root_path_id = 0 if configs.is_local_machine() else 5
-    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train', root_type=c.ROOT_PATH_TYPES[root_path_id])
-
-    noun_ids_dict = utils.pkl_load(noun_ids_dict_path)
-    verb_ids_dict = utils.pkl_load(verb_ids_dict_path)
-
-    annot_idxes_many_shots = utils.pkl_load(annot_idxes_many_shots_path)
-    video_info_dict = utils.pkl_load(video_info_dict_path)
-
-    annot_dict = utils.pkl_load(annot_dict_path)
-    (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
-
-    # stride between two sampled segment in the same annotation instance
-    sampling_stride_tr = 17
-    sampling_stride_te = 50
-    # fps to use when sampling frames
-    ideal_fps = 29
-    # how many successive frames in each sampled segment
-    n_frames_per_segment = 8
-
-    frame_pathes_tr = []
-    frame_pathes_te = []
-    gt_noun_tr = []
-    gt_verb_tr = []
-    gt_noun_te = []
-    gt_verb_te = []
-
-    # shuffle ids
-    random.shuffle(annot_idxes_many_shots)
-
-    for annot_id in annot_idxes_many_shots:
-        # participant_id,video_id,narration,start_timestamp,stop_timestamp,start_frame,stop_frame,verb,verb_class,noun,noun_class,all_nouns,all_noun_classes
-        annot_line = annot_dict[annot_id]
-        person_id = annot_line[0]
-        video_id = annot_line[1]
-
-        frame_start = annot_line[5]
-        frame_stop = annot_line[6]
-
-        noun_id = noun_ids_dict[annot_line[10]]
-        verb_id = verb_ids_dict[annot_line[8]]
-
-        is_training = video_id not in video_names_te
-        sampling_stride = sampling_stride_tr if is_training else sampling_stride_te
-
-        video_fps = video_info_dict[video_id][2]
-        video_fps = int(video_fps)
-        fps_factor = video_fps / ideal_fps
-
-        # sample frames, an example of frame name: frame_0000000001
-        video_frame_nums = __random_sample_frames_for_i3d(frame_start, frame_stop, fps_factor, sampling_stride, n_frames_per_segment)
-        video_frame_pathes = ['%s/%s/%s/frame_%010d.jpg' % (frames_root_path, person_id, video_id, n) for n in video_frame_nums]
-
-        # reshape
-        video_frame_pathes = np.reshape(video_frame_pathes, (-1, n_frames_per_segment)).tolist()
-        n_video_segments = len(video_frame_pathes)
-        video_noun_ids = [noun_id] * n_video_segments
-        video_verb_ids = [verb_id] * n_video_segments
-
-        if is_training:
-            frame_pathes_tr += video_frame_pathes
-            gt_noun_tr += video_noun_ids
-            gt_verb_tr += video_verb_ids
-        else:
-            frame_pathes_te += video_frame_pathes
-            gt_noun_te += video_noun_ids
-            gt_verb_te += video_verb_ids
-
-    frame_pathes_tr = np.array(frame_pathes_tr)
-    frame_pathes_te = np.array(frame_pathes_te)
-
-    gt_noun_tr = np.array(gt_noun_tr)
-    gt_noun_te = np.array(gt_noun_te)
-    gt_verb_tr = np.array(gt_verb_tr)
-    gt_verb_te = np.array(gt_verb_te)
-
-    # binarize labels
-    classes_noun = np.arange(N_NOUNS_MANY_SHOT)
-    classes_verb = np.arange(N_VERBS_MANY_SHOT)
-    gt_noun_tr = utils.label_binarize(gt_noun_tr, classes_noun)
-    gt_noun_te = utils.label_binarize(gt_noun_te, classes_noun)
-    gt_verb_tr = utils.label_binarize(gt_verb_tr, classes_verb)
-    gt_verb_te = utils.label_binarize(gt_verb_te, classes_verb)
-
-    data = (frame_pathes_tr, gt_noun_tr, gt_verb_tr, frame_pathes_te, gt_noun_te, gt_verb_te)
-
-    return data
 
 def __random_sample_frames_for_i3d(frame_start, frame_stop, fps_factor, stride, n_frames_per_segment):
     frame_nums = np.arange(frame_start, frame_stop + 1, step=fps_factor)
@@ -375,9 +274,9 @@ def __get_action_ids_from_annotation(annotation_path):
 
 # region Prepare Annotation: Video-level
 
-def _800_prepare_video_frames_path_dict():
-    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict.pkl')
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
+def _201_prepare_video_frames_path_dict():
+    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict.pkl')
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
     imgs_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train')
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
@@ -397,11 +296,11 @@ def _800_prepare_video_frames_path_dict():
 
     utils.pkl_dump(frame_relative_pathes_dict, frame_relative_pathes_dict_path)
 
-def _800_spit_video_frames_relative_pathes():
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict.pkl')
-    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_tr.pkl')
-    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_te.pkl')
+def _202_spit_video_frames_relative_pathes():
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict.pkl')
+    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_tr.pkl')
+    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_te.pkl')
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
     frames_dict = utils.pkl_load(frame_relative_pathes_dict_path)
@@ -418,14 +317,14 @@ def _800_spit_video_frames_relative_pathes():
     utils.pkl_dump(dict_tr, frame_relative_pathes_dict_tr_path)
     utils.pkl_dump(dict_te, frame_relative_pathes_dict_te_path)
 
-def _801_prepare_video_level_annotation():
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-    noun_ids_dict_path = Pth('EPIC-Kitchens/annotations/noun_ids_many_shots_dict.pkl')
-    verb_ids_dict_path = Pth('EPIC-Kitchens/annotations/verb_ids_many_shots_dict.pkl')
-    actn_ids_dict_path = Pth('EPIC-Kitchens/annotations/actn_ids_many_shots_dict.pkl')
-    annot_dict_path = Pth('EPIC-Kitchens/annotations/EPIC_train_action_labels_dict.pkl')
-    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotations/annot_idxes_many_shots_noun_verb.pkl')
-    annot_video_level_many_shots_path = Pth('EPIC-Kitchens/annotations/annot_video_level_many_shots.pkl')
+def _203_prepare_video_level_annotation():
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    noun_ids_dict_path = Pth('EPIC-Kitchens/annotation/noun_ids_many_shots_dict.pkl')
+    verb_ids_dict_path = Pth('EPIC-Kitchens/annotation/verb_ids_many_shots_dict.pkl')
+    actn_ids_dict_path = Pth('EPIC-Kitchens/annotation/actn_ids_many_shots_dict.pkl')
+    annot_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_train_action_labels_dict.pkl')
+    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotation/annot_idxes_many_shots_noun_verb.pkl')
+    annot_video_level_many_shots_path = Pth('EPIC-Kitchens/annotation/annot_video_level_many_shots.pkl')
 
     noun_ids_dict = utils.pkl_load(noun_ids_dict_path)
     verb_ids_dict = utils.pkl_load(verb_ids_dict_path)
@@ -537,11 +436,11 @@ def _801_prepare_video_level_annotation():
     data = (y_noun_list_tr, y_verb_list_tr, y_actn_list_tr, y_noun_list_te, y_verb_list_te, y_actn_list_te)
     utils.pkl_dump(data, annot_video_level_many_shots_path)
 
-def _802_uniform_sample_frames_for_i3d_test_video_level():
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_tr.pkl')
-    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_te.pkl')
-    sampled_frames_relative_pathes = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_uniform_sample.pkl')
+def _204_uniform_sample_frames_for_i3d_test_video_level():
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_tr.pkl')
+    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_te.pkl')
+    sampled_frames_relative_pathes = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_uniform_sample.pkl')
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
     frame_relative_pathes_dict_tr = utils.pkl_load(frame_relative_pathes_dict_tr_path)
@@ -557,13 +456,13 @@ def _802_uniform_sample_frames_for_i3d_test_video_level():
     data = (sampled_frames_tr, sampled_frames_te)
     utils.pkl_dump(data, sampled_frames_relative_pathes)
 
-def _803_random_sample_frames_for_i3d_test_video_level():
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_tr.pkl')
-    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_te.pkl')
+def _205_random_sample_frames_for_i3d_test_video_level():
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    frame_relative_pathes_dict_tr_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_tr.pkl')
+    frame_relative_pathes_dict_te_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_te.pkl')
 
     root_path_id = 0 if configs.is_local_machine() else 5
-    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train', root_type=c.ROOT_PATH_TYPES[root_path_id])
+    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train')
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
     frame_relative_pathes_dict_tr = utils.pkl_load(frame_relative_pathes_dict_tr_path)
@@ -580,17 +479,15 @@ def _803_random_sample_frames_for_i3d_test_video_level():
 
     return (sampled_frames_tr, sampled_frames_te)
 
-def _804_random_sample_frames_for_i3d_test_video_level_by_split(split_type='train'):
+def _206_random_sample_frames_for_i3d_test_video_level_by_split(split_type='train'):
 
     assert split_type in ['train', 'test'], 'Sorry, unknown split type: %s' % (split_type)
     is_train = split_type == 'train'
 
     file_name_suffix = 'tr' if is_train else 'te'
-    root_path_id = 0 if configs.is_local_machine() else 5
-
-    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train', root_type=c.ROOT_PATH_TYPES[root_path_id])
-    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_dict_%s.pkl', (file_name_suffix,))
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
+    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train')
+    frame_relative_pathes_dict_path = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_dict_%s.pkl', (file_name_suffix,))
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
     video_names = video_names_tr if is_train else video_names_te
@@ -674,9 +571,114 @@ def __random_sample_frames_per_video_for_i3d(video_names, frames_root_path, fram
 
 # endregion
 
+# region Sample Frames
+
+def _301_sample_frame_pathes_i3d():
+    """
+    Sample fram pathes for the i3d model.
+    According to values here, we will have number of samples:
+    total, train, test: 27908, 21427, 6481
+    """
+
+    noun_ids_dict_path = Pth('EPIC-Kitchens/annotation/noun_ids_many_shots_dict.pkl')
+    verb_ids_dict_path = Pth('EPIC-Kitchens/annotation/verb_ids_many_shots_dict.pkl')
+
+    video_info_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_video_info_dict.pkl')
+    annot_dict_path = Pth('EPIC-Kitchens/annotation/EPIC_train_action_labels_dict.pkl')
+    annot_idxes_many_shots_path = Pth('EPIC-Kitchens/annotation/annot_idxes_many_shots_noun_verb.pkl')
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train')
+
+    noun_ids_dict = utils.pkl_load(noun_ids_dict_path)
+    verb_ids_dict = utils.pkl_load(verb_ids_dict_path)
+
+    annot_idxes_many_shots = utils.pkl_load(annot_idxes_many_shots_path)
+    video_info_dict = utils.pkl_load(video_info_dict_path)
+
+    annot_dict = utils.pkl_load(annot_dict_path)
+    (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
+
+    # stride between two sampled segment in the same annotation instance
+    sampling_stride_tr = 17
+    sampling_stride_te = 50
+    # fps to use when sampling frames
+    ideal_fps = 29
+    # how many successive frames in each sampled segment
+    n_frames_per_segment = 8
+
+    frame_pathes_tr = []
+    frame_pathes_te = []
+    gt_noun_tr = []
+    gt_verb_tr = []
+    gt_noun_te = []
+    gt_verb_te = []
+
+    # shuffle ids
+    random.shuffle(annot_idxes_many_shots)
+
+    for annot_id in annot_idxes_many_shots:
+        # participant_id,video_id,narration,start_timestamp,stop_timestamp,start_frame,stop_frame,verb,verb_class,noun,noun_class,all_nouns,all_noun_classes
+        annot_line = annot_dict[annot_id]
+        person_id = annot_line[0]
+        video_id = annot_line[1]
+
+        frame_start = annot_line[5]
+        frame_stop = annot_line[6]
+
+        noun_id = noun_ids_dict[annot_line[10]]
+        verb_id = verb_ids_dict[annot_line[8]]
+
+        is_training = video_id not in video_names_te
+        sampling_stride = sampling_stride_tr if is_training else sampling_stride_te
+
+        video_fps = video_info_dict[video_id][2]
+        video_fps = int(video_fps)
+        fps_factor = video_fps / ideal_fps
+
+        # sample frames, an example of frame name: frame_0000000001
+        video_frame_nums = __random_sample_frames_for_i3d(frame_start, frame_stop, fps_factor, sampling_stride, n_frames_per_segment)
+        video_frame_pathes = ['%s/%s/%s/frame_%010d.jpg' % (frames_root_path, person_id, video_id, n) for n in video_frame_nums]
+
+        # reshape
+        video_frame_pathes = np.reshape(video_frame_pathes, (-1, n_frames_per_segment)).tolist()
+        n_video_segments = len(video_frame_pathes)
+        video_noun_ids = [noun_id] * n_video_segments
+        video_verb_ids = [verb_id] * n_video_segments
+
+        if is_training:
+            frame_pathes_tr += video_frame_pathes
+            gt_noun_tr += video_noun_ids
+            gt_verb_tr += video_verb_ids
+        else:
+            frame_pathes_te += video_frame_pathes
+            gt_noun_te += video_noun_ids
+            gt_verb_te += video_verb_ids
+
+    frame_pathes_tr = np.array(frame_pathes_tr)
+    frame_pathes_te = np.array(frame_pathes_te)
+
+    gt_noun_tr = np.array(gt_noun_tr)
+    gt_noun_te = np.array(gt_noun_te)
+    gt_verb_tr = np.array(gt_verb_tr)
+    gt_verb_te = np.array(gt_verb_te)
+
+    # binarize labels
+    classes_noun = np.arange(N_NOUNS_MANY_SHOT)
+    classes_verb = np.arange(N_VERBS_MANY_SHOT)
+    gt_noun_tr = utils.label_binarize(gt_noun_tr, classes_noun)
+    gt_noun_te = utils.label_binarize(gt_noun_te, classes_noun)
+    gt_verb_tr = utils.label_binarize(gt_verb_tr, classes_verb)
+    gt_verb_te = utils.label_binarize(gt_verb_te, classes_verb)
+
+    data = (frame_pathes_tr, gt_noun_tr, gt_verb_tr, frame_pathes_te, gt_noun_te, gt_verb_te)
+
+    return data
+
+# endregion
+
 # region Extract Features
 
-def _901_extract_features_i3d():
+def _401_extract_features_i3d():
     """
     Extract i3d features.
     :return:
@@ -687,12 +689,10 @@ def _901_extract_features_i3d():
     n_segments_per_video = 64
     n_frames_per_video = n_segments_per_video * n_frames_per_segment
 
-    video_names_splits_path = Pth('EPIC-Kitchens/annotations/video_names_splits.pkl')
-    sampled_frames_relative_pathes = Pth('EPIC-Kitchens/annotations/frame_relative_pathes_uniform_sample.pkl')
-
-    root_path_id = 0 if configs.is_local_machine() else 5
-    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train', root_type=c.ROOT_PATH_TYPES[root_path_id])
-    features_path = Pth('EPIC-Kitchens/features/features_i3d_mixed_5c_%d_frames.h5', (n_frames_per_video,), root_type=c.ROOT_PATH_TYPES[root_path_id])
+    video_names_splits_path = Pth('EPIC-Kitchens/annotation/video_names_splits.pkl')
+    sampled_frames_relative_pathes = Pth('EPIC-Kitchens/annotation/frame_relative_pathes_uniform_sample.pkl')
+    frames_root_path = Pth('EPIC-Kitchens/frames_rgb_resized/train')
+    features_path = Pth('EPIC-Kitchens/features/features_i3d_mixed_5c_%d_frames.h5', (n_frames_per_video,))
 
     (video_names_tr, video_names_te) = utils.pkl_load(video_names_splits_path)
     (sampled_frames_tr, sampled_frames_te) = utils.pkl_load(sampled_frames_relative_pathes)
@@ -706,7 +706,7 @@ def _901_extract_features_i3d():
     v_frames_pathes = np.array(['%s/%s' % (frames_root_path, p) for p in sampled_frames[0]])
     img_reader.load_imgs_in_batch(v_frames_pathes)
 
-    model = i3d_keras_epic_kitchens.Inception_Inflated3d_Backbone()
+    model = Inception_Inflated3d_Backbone()
     print (model.summary())
     model = multi_gpu_utils.multi_gpu_model(model, 4)
 
@@ -759,7 +759,14 @@ def _901_extract_features_i3d():
 
 # endregion
 
-# region Centroids
+# region Pickle Features
+
+def _501_pickle_features_i3d():
+    pass
+
+# endregion
+
+# region Generate Centroids
 
 def _602_generate_nodes(n_nodes, n_dims):
     pass
@@ -814,8 +821,8 @@ def __get_duration_in_sec_using_frame_count(start_frame, stop_frame, video_id, v
 
 def __get_action_names_from_action_keys(action_keys):
     root_path = c.DATA_ROOT_PATH
-    verb_dict_path = '%s/EPIC-Kitchens/annotations/EPIC_verb_classes_dict.pkl' % (root_path)
-    noun_dict_path = '%s/EPIC-Kitchens/annotations/EPIC_noun_classes_dict.pkl' % (root_path)
+    verb_dict_path = '%s/EPIC-Kitchens/annotation/EPIC_verb_classes_dict.pkl' % (root_path)
+    noun_dict_path = '%s/EPIC-Kitchens/annotation/EPIC_noun_classes_dict.pkl' % (root_path)
 
     verb_dict = utils.pkl_load(verb_dict_path)
     noun_dict = utils.pkl_load(noun_dict_path)

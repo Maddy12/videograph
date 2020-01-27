@@ -49,7 +49,7 @@ def train_model_videograph():
     """
 
     annotation_type = 'noun'
-    annot_path = Pth('EPIC-Kitchens/annotations/annot_video_level_many_shots.pkl')
+    annot_path = Pth('EPIC-Kitchens/annotation/annot_video_level_many_shots.pkl')
     (y_tr, y_te), n_classes = __load_annotation(annot_path, annotation_type)
 
     model_type = 'i3d_rgb'

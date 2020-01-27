@@ -158,7 +158,7 @@ def train_model_on_video_features_i3d():
     # resnet-152
     features_root_path = Pth('Breakfast/features_i3d_mixed_5c_%s_frames', (n_frames))
     centroids_path = Pth('Breakfast/features_centroids/features_random_%d_centroids.pkl', (n_centroids,))
-    video_annot_path = Pth('Breakfast/annotations/gt_activities.pkl')
+    video_annot_path = Pth('Breakfast/annotation/gt_activities.pkl')
     centroids = utils.pkl_load(centroids_path)
 
     n_feat_maps, feat_map_side_dim = __get_model_feat_maps_info(model_type, feature_type)
