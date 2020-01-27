@@ -57,9 +57,9 @@ def _01_get_nodes_over_epochs():
 
     n_centroids = 128
     n_epochs = 100
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     model_root_path = Pth('Breakfast/models/%s', (model_name,))
-    centroids_path = Pth('Breakfast/features/centroids_random_%d_centroids.pkl', (n_centroids,))
+    centroids_path = Pth('Breakfast/features_centroids/features_random_%d_centroids.pkl', (n_centroids,))
     nodes_root_path = Pth('Breakfast/qualitative_results/node_embedding_%s' % (model_name,))
 
     v_input_nodes = utils.pkl_load(centroids_path)
@@ -103,7 +103,7 @@ def _02_plot_nodes_over_epochs():
     window_size = 15
     n_max_centroids = 40
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     nodes_root_path = Pth('Breakfast/qualitative_results/node_embedding_%s' % (model_name,))
 
     # load nodes from files
@@ -150,7 +150,7 @@ def _03_mean_std_of_nodes():
     node_dim = 1024
     n_centroids = 128
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     nodes_root_path = Pth('Breakfast/qualitative_results/node_embedding_%s' % (model_name,))
 
     # load nodes from files
@@ -198,9 +198,9 @@ def _04_get_activation_values():
     n_timesteps = 64
     n_centroids = 128
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     features_path = Pth('Breakfast/features/features_i3d_mixed_5c_%d_frames.h5', (n_timesteps * 8,))
-    centroids_path = Pth('Breakfast/features/centroids_random_%d_centroids.pkl', (n_centroids,))
+    centroids_path = Pth('Breakfast/features_centroids/features_random_%d_centroids.pkl', (n_centroids,))
     attention_values_path = Pth('Breakfast/qualitative_results/node_attention_%s.pkl', (model_name,))
 
     v_input_n = utils.pkl_load(centroids_path)
@@ -237,7 +237,7 @@ def _05_visualize_attention_values():
     n_timesteps = 64
     n_centroids = 128
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     features_path = Pth('Breakfast/features/features_i3d_mixed_5c_%d_frames.h5', (n_timesteps * 8,))
     gt_activities_path = Pth('Breakfast/annotation/gt_activities.pkl')
     frames_annot_path = Pth('Breakfast/annotation/annot_frames_i3d_%d.pkl', (512,))
@@ -268,9 +268,9 @@ def _06_get_graph_edges():
     n_centroids = 128
     is_max_layer = True
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     features_path = Pth('Breakfast/features/features_i3d_mixed_5c_%d_frames.h5', (n_timesteps * 8,))
-    centroids_path = Pth('Breakfast/features/centroids_random_%d_centroids.pkl', (n_centroids,))
+    centroids_path = Pth('Breakfast/features_centroids/features_random_%d_centroids.pkl', (n_centroids,))
 
     if is_max_layer:
         edge_values_path = Pth('Breakfast/qualitative_results/graph_edges_max_%s.h5', (model_name,))
@@ -334,7 +334,7 @@ def _07_visualize_graph_edges():
     n_timesteps = 64
     is_max_layer = True
 
-    model_name = 'classifier_19.03.21-01:00:30'
+    model_name = 'classifier_19.02.21-01:00:30'
     features_path = Pth('Breakfast/features/features_i3d_mixed_5c_%d_frames.h5', (n_timesteps * 8,))
     gt_activities_path = Pth('Breakfast/annotation/gt_activities.pkl')
     frames_annot_path = Pth('Breakfast/annotation/annot_frames_i3d_%d.pkl', (512,))
@@ -464,219 +464,6 @@ def _07_visualize_graph_edges():
 
         # plot graph
         __plot_embedded_graph(graph, g_embedding, g_edges, node_values, class_num, class_name, min_node_value, max_node_value, min_edge_val, max_edge_val, n_nodes)
-
-def _11_visualize_temporal_transitions():
-    # load data
-    n_timesteps = 64
-
-    model_name = 'classifier_19.03.21-01:00:30'
-    features_path = Pth('Breakfast/features/features_i3d_mixed_5c_%d_frames.h5', (n_timesteps * 8,))
-    gt_activities_path = Pth('Breakfast/annotation/gt_activities.pkl')
-    frames_annot_path = Pth('Breakfast/annotation/annot_frames_i3d_%d.pkl', (512,))
-    class_names_path = Pth('Breakfast/annotation/activities_list.pkl')
-
-    edge_values_path = Pth('Breakfast/qualitative_results/graph_edges_max_%s.h5', (model_name,))
-    n_timesteps = 21
-    n_nodes = 10
-
-    n_classes = ds_breakfast.N_CLASSES_ACTIVITIES
-    frames_annot = utils.pkl_load(frames_annot_path)
-    class_names = utils.pkl_load(class_names_path)
-    (video_ids_tr, y_tr), (video_ids_te, y_te) = utils.pkl_load(gt_activities_path)
-    y_tr = utils.debinarize_label(y_tr)
-    y_te = utils.debinarize_label(y_te)
-    n_classes = ds_breakfast.N_CLASSES_ACTIVITIES
-
-    # (1357, 10, 21)
-    # (355, 10, 21)
-    (x_tr, x_te,) = utils.h5_load_multi(edge_values_path, ['x_tr', 'x_te'])
-
-    x_tr = np.transpose(x_tr, (0, 2, 1, 3))  # (1357, 21, 10, 1024)
-    x_te = np.transpose(x_te, (0, 2, 1, 3))  # (355, 21, 10)
-
-    x_original = x_tr
-    y = y_tr
-
-    assert n_timesteps == x_original.shape[1]
-    assert n_nodes == x_original.shape[2]
-
-    x = x_original
-    x_sum_mean = np.mean(np.sum(x, axis=3), axis=0)  # (T, N)
-    min_node_value = np.min(x_sum_mean)
-    max_node_value = np.max(x_sum_mean)
-
-    def __scale_transition(val):
-        val = 1 / val
-        val = pow(val, 1.2)
-        return val
-
-    # first, loop to calculate min/max edge_value
-    min_edge_value = 10000
-    max_edge_value = -10000
-    # loop on classes of the dataset
-    for idx_class in range(n_classes):
-
-        idx_samples = np.where(y == idx_class)[0]
-        x_class = x[idx_samples]  # (None, T, N, C)
-
-        # pool over samples
-        x_class = np.mean(x_class, axis=0)  # (T, N, C)
-
-        # loop on timesteps, and measure pairwise distances
-        for idx_timestep in range(n_timesteps - 1):
-            t1 = idx_timestep
-            t2 = idx_timestep + 1
-            x_t1 = x_class[t1]  # (N, C)
-            x_t2 = x_class[t2]  # (N, C)
-            transitions = distance.cdist(x_t1, x_t2, metric='euclidean')  # (N, N)
-            min_edge_value = min(min_edge_value, np.min(transitions))
-            max_edge_value = max(max_edge_value, np.max(transitions))
-
-    # loop on classes of the dataset
-    for idx_class in range(n_classes):
-
-        class_num = idx_class + 1
-        class_name = class_names[idx_class]
-        idx_samples = np.where(y == idx_class)[0]
-        x_class = x[idx_samples]  # (None, T, N, C)
-
-        # pool over samples
-        x_class = np.mean(x_class, axis=0)  # (T, N, C)
-
-        node_values = np.sum(x_class, axis=2)  # (None, T, N)
-
-        class_transitions = []
-
-        # loop on timesteps, and measure pairwise distances
-        for idx_timestep in range(n_timesteps - 1):
-            t1 = idx_timestep
-            t2 = idx_timestep + 1
-            x_t1 = x_class[t1]  # (N, C)
-            x_t2 = x_class[t2]  # (N, C)
-
-            transitions = distance.cdist(x_t1, x_t2, metric='euclidean')  # (N, N)
-            transitions = __scale_transition(transitions)
-            class_transitions.append(transitions)
-
-        class_transitions = np.array(class_transitions)  # (21, 10, 10)
-        __plot_temporal_transitions(node_values, class_transitions, class_num, class_name, min_node_value, max_node_value, min_edge_value, max_edge_value, n_nodes)
-
-def _12_plot_confusion_matrix():
-    # sns.set_style('whitegrid')
-    # sns.set(style='darkgrid')
-    # sns.set(style='dark')
-    # sns.set(style='ticks')
-    # sns.set(style='white')
-
-    gt_activities_path = Pth('Breakfast/annotation/gt_activities.pkl')
-    (_, y_1) = utils.pkl_load('/home/nour/Documents/Datasets/Breakfast/qualitative_results/predictions_ordered.pkl')
-    (_, y_2) = utils.pkl_load('/home/nour/Documents/Datasets/Breakfast/qualitative_results/predictions_reversed.pkl')
-    (_, y_3) = utils.pkl_load('/home/nour/Documents/Datasets/Breakfast/qualitative_results/predictions_shuffled.pkl')
-    class_names = utils.txt_load('/home/nour/Documents/Datasets/Breakfast/annotation/activities_list_human_readable.txt')
-    (_, _), (_, y_true) = utils.pkl_load(gt_activities_path)
-
-    n_classes = len(class_names)
-
-    # y_true = y_tr if is_train else y_te
-    y_true = utils.debinarize_label(y_true)
-    y_1 = np.argmax(y_1, axis=1)
-    y_3 = np.argmax(y_3, axis=1)
-
-    conf_matrix_1 = confusion_matrix(y_true, y_1)
-    conf_matrix_3 = confusion_matrix(y_true, y_3)
-
-    c_map = plt.get_cmap('coolwarm')
-    c_map = plt.get_cmap('RdBu_r')
-    c_map = plt.get_cmap('summer')
-    c_map = plt.get_cmap('plasma')
-    c_map = plt.get_cmap('gist_gray')
-    c_map = plt.get_cmap('viridis')
-    c_map = plt.get_cmap('cividis')
-    c_map = plt.get_cmap('Blues_r')
-
-    y_ticks = ['%s %d' % (n, i + 1) for i, n in enumerate(class_names)]
-    x_ticks = ['%d' % (i + 1) for i, n in enumerate(class_names)]
-
-    fig, axs = plt.subplots(1, 2, figsize=(6, 3), sharex=True, sharey=True)
-
-    axs[0].imshow(conf_matrix_1, cmap=c_map)
-    axs[1].imshow(conf_matrix_3, cmap=c_map)
-
-    plt.yticks(np.arange(n_classes), y_ticks)
-    plt.xticks(np.arange(n_classes), x_ticks)
-    axs[0].xaxis.set_tick_params(labelsize=9)
-    axs[0].yaxis.set_tick_params(labelsize=9)
-    axs[1].xaxis.set_tick_params(labelsize=9)
-    axs[1].yaxis.set_tick_params(labelsize=9)
-
-    plt.gca().invert_yaxis()
-
-    plt.subplots_adjust(left=0.25, right=0.9, top=0.9, bottom=0.25)
-    # plt.tight_layout()
-    plt.show()
-
-def _13_get_kernel_weights():
-    # load data
-    n_timesteps = 64
-    n_centroids = 128
-
-    epoch_num = 133
-    model_name = 'classifier_19.03.21-01:00:30'
-
-    model = __load_model(model_name, epoch_num)
-    weights_path = Pth('Breakfast/qualitative_results/nodewise_conv_kernel_weights_%s.pkl', (model_name,))
-
-    # weight names
-    conv_s_1 = 'conv_s_1'  # Conv3D
-    conv_t_1 = 'conv_t_1'  # DepthwiseConv1DLayer
-    conv_n_1 = 'conv_n_1'  # DepthwiseConv1DLayer
-
-    conv_s_2 = 'conv_s_2'  # Conv3D
-    conv_t_2 = 'conv_t_2'  # DepthwiseConv1DLayer
-    conv_n_2 = 'conv_n_2'  # DepthwiseConv1DLayer
-
-    s_layer_names = [conv_s_1, conv_s_2]  # (1024, 1024)
-    t_layer_names = [conv_t_1, conv_t_2]  # (7, 1024)
-    n_layer_names = [conv_n_1, conv_n_2]  # (7, 1024)
-
-    layer_names = s_layer_names + t_layer_names + n_layer_names
-    layer_names = n_layer_names
-    layer_weights = []
-    for n in layer_names:
-        layer = model.get_layer(n)
-        w, _ = layer.get_weights()
-        w = np.squeeze(w)
-        layer_weights.append(w)
-
-    # layer_weights (2, 7, 1024)
-    layer_weights = np.array(layer_weights)
-
-    utils.pkl_dump(layer_weights, weights_path)
-
-def _14_visualize_kernel_weights():
-    model_name = 'classifier_19.03.21-01:00:30'
-    weights_path = Pth('Breakfast/qualitative_results/nodewise_conv_kernel_weights_%s.pkl', (model_name,))
-    layer_weights = utils.pkl_load(weights_path)
-    layer_weights = np.array([layer_weights[1], layer_weights[0]])
-    titles = ['Top Layer', 'Bottom Layer']
-
-    rows = [[450, 500], [100, 150]]
-    print np.min(layer_weights), np.max(layer_weights)
-
-    fig, axes = plt.subplots(2, figsize=(6, 2))
-    plt.axis('off')
-    for idx, ax in enumerate(axes):
-        img = layer_weights[idx, :, rows[idx][0]: rows[idx][1]]
-        im = ax.imshow(img, vmin=layer_weights[idx].min(), vmax=layer_weights[idx].max())
-        cax = fig.add_axes([0.82, 0.14, 0.05, 0.72])
-        fig.colorbar(im, cax=cax, orientation='vertical')
-        ax.set_title(titles[idx])
-        ax.axis('off')
-        # ax.colorbar(im)
-
-    plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
-    # plt.savefig("test.png", bbox_inches='tight')
-    plt.show()
 
 def __plot_temporal_transitions(node_values, transitions, class_id, class_name, min_node_value, max_node_value, min_edge_value, max_edge_value, n_nodes):
     # plot graph
