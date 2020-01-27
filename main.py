@@ -92,7 +92,7 @@ exp_breakfast_unit_actions.train_model_on_pickled_features()
 ########################################################################
 
 #########################
-# 1.1 Prepare Data
+# 3.1 Prepare Data
 #########################
 
 # prepare some annotations
@@ -114,6 +114,10 @@ ds_epic_kitchens._501_pickle_features_i3d()
 # generate centroids
 ds_epic_kitchens._602_generate_nodes(128, 1024)
 
+#########################
+# 3.2 Train Models
+#########################
+
 # train videograph on features of Epic_Kitchens.
 # this gets you inferior results, as it uses the same sampled frames throughtout the entire training
 exp_epic_kitchens.train_model_on_pickled_features()
@@ -128,5 +132,4 @@ exp_epic_kitchens.train_model_on_video_frames()
 # 4.0 Experiments on Charades
 ########################################################################
 # train videograph on features of Charades
-# from experiments import Charades
-# Charades.train_model_videograph()
+# from experiments import ds_charades
