@@ -1,0 +1,10 @@
+cereals
+coffee
+fried egg
+juice
+milk
+pancake
+salat
+sandwich
+scrambled egg
+tea

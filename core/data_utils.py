@@ -427,12 +427,12 @@ class AsyncVideoFeaturesLoaderBreakfast():
     Load features for the video frames.
     """
 
-    def __init__(self, feats_path, target, n_frames_per_video, batch_size, n_feat_maps, feat_map_side_dim, n_threads=10):
+    def __init__(self, feats_path, target, n_timesteps, batch_size, n_feat_maps, feat_map_side_dim, n_threads=10):
         random.seed(101)
         np.random.seed(101)
 
         self.__feats_pathes = feats_path
-        self.__n_frames_per_video = n_frames_per_video
+        self.__n_timesteps = n_timesteps
         self.__n_feat_maps = n_feat_maps
         self.__feat_map_side_dim = feat_map_side_dim
 
@@ -465,7 +465,7 @@ class AsyncVideoFeaturesLoaderBreakfast():
         params = [data_item for data_item in zip(idxces, batch_feat_pathes)]
 
         # set list of batch features before start reading
-        batch_feats_shape = (n_batch_feats, self.__n_frames_per_video, self.__feat_map_side_dim, self.__feat_map_side_dim, self.__n_feat_maps)
+        batch_feats_shape = (n_batch_feats, self.__n_timesteps, self.__feat_map_side_dim, self.__feat_map_side_dim, self.__n_feat_maps)
 
         self.__batch_features = np.zeros(batch_feats_shape, dtype=np.float32)
         self.__batch_y = batch_y
@@ -499,7 +499,7 @@ class AsyncVideoFeaturesLoaderBreakfast():
             feats = utils.pkl_load(feats_path)
 
             n_feats = len(feats)
-            assert n_feats == self.__n_frames_per_video, 'Sorry, wrong number of frames, expected: %d, got: %d' % (self.__n_frames_per_video, n_feats)
+            assert n_feats == self.__n_timesteps, 'Sorry, wrong number of timesteps, expected: %d, got: %d' % (self.__n_timesteps, n_feats)
             self.__batch_features[idx_video] = feats
 
         except Exception as exp:
@@ -522,5 +522,3 @@ class AsyncVideoFeaturesLoaderBreakfast():
     def close(self):
         self.__pool.close()
         self.__pool.terminate()
-
-

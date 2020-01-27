@@ -1,0 +1,10 @@
+cereals
+coffee
+friedegg
+juice
+milk
+pancake
+salat
+sandwich
+scrambledegg
+tea

@@ -27,6 +27,7 @@ import pickle as pkl
 import pandas as pd
 from datetime import datetime
 from sklearn import preprocessing, manifold
+from sklearn.preprocessing import label_binarize
 import scipy.io as sio
 
 import os

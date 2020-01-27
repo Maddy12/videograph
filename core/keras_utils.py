@@ -41,103 +41,10 @@ METRICS = ['accuracy', 'mean_squared_error', 'mean_absolute_error']
 OPTIMIZERS = ['sgd', 'rmsprop', 'adam']
 ACTIVATIONS = ['tanh', 'relu', 'sigmoid', 'softmax']
 
-class LossPlotCallback(callbacks.Callback):
-    def __init__(self, n_epochs, title, is_split=True, metric_name='acc'):
-
-        self.__is_local_machine = configs.is_local_machine()
-
-        if not self.__is_local_machine:
-            return
-
-        self.metric_name_tr = metric_name
-        self.metric_name_te = 'val_%s' % (metric_name)
-        self.n_epochs = n_epochs
-        self.is_split = is_split
-        self.colors = plot_utils.tableau_category20()
-        self.title = title
-
-        self.fig, self.ax1 = plt.subplots(num='Keras Loss Plot', figsize=(16, 5))
-        self.ax2 = self.ax1.twinx()
-
-        plt.ion()
-
-        self.loss_tr = np.zeros((n_epochs,), dtype=np.float16)
-        self.acc_tr = np.zeros((n_epochs,), dtype=np.float16)
-
-        self.loss_te = np.zeros((n_epochs,), dtype=np.float16) if is_split else None
-        self.acc_te = np.zeros((n_epochs,), dtype=np.float16) if is_split else None
-
-    def on_epoch_end(self, epoch, logs={}):
-
-        if not self.__is_local_machine:
-            return
-
-        epoch += 1
-
-        is_split = self.is_split
-        colors = self.colors
-        ax1 = self.ax1
-        ax2 = self.ax2
-        fig = self.fig
-
-        idx = epoch - 1
-        self.loss_tr[idx] = logs.get('loss')
-        self.acc_tr[idx] = logs.get(self.metric_name_tr)
-        if is_split:
-            self.loss_te[idx] = logs.get('val_loss')
-            self.acc_te[idx] = logs.get(self.metric_name_te)
-
-        loss_tr = self.loss_tr[:epoch]
-        acc_tr = self.acc_tr[:epoch]
-
-        if is_split:
-            loss_te = self.loss_te[:epoch]
-            acc_te = self.acc_te[:epoch]
-        else:
-            loss_te = None
-            acc_te = None
-
-        n_epochs = len(loss_tr)
-        x = np.arange(1, n_epochs + 1)
-
-        ax1.cla()
-        ax2.cla()
-
-        ax1.set_title('')
-        ax2.set_title('')
-        plt.title(self.title)
-
-        ax1.set_xlabel('epoch')
-        ax1.set_ylabel('loss')
-        ax2.set_ylabel('accuracy')
-
-        ax1.grid()
-        ax2.grid()
-
-        ax1.plot(x, loss_tr, color=colors[0], lw=2, label='loss_tr')
-        ax2.plot(x, acc_tr, color=colors[2], lw=2, label='acc_tr')
-        if is_split:
-            ax1.plot(x, loss_te, color=colors[1], lw=2, label='loss_te')
-            ax2.plot(x, acc_te, color=colors[3], lw=2, label='acc_te')
-
-        ax1.legend(loc=2, framealpha=0.5)
-        ax2.legend(loc=1, framealpha=0.5)
-
-        plt.pause(0.01)
-
-    def on_train_end(self, logs={}):
-
-        if not self.__is_local_machine:
-            return
-
-        plt.tight_layout()
-        plt.ioff()
-
 class ModelSaveCallback(callbacks.Callback):
-    def __init__(self, model, model_name, epoch_offset, model_root_path):
+    def __init__(self, model, model_name, model_root_path):
         self.model = model
         self.model_name = model_name
-        self.epoch_offset = epoch_offset
 
         model_root_path = '%s/%s' % (model_root_path, self.model_name)
         if not os.path.exists(model_root_path):
@@ -148,7 +55,7 @@ class ModelSaveCallback(callbacks.Callback):
 
     def on_epoch_end(self, idx_epoch, logs={}):
         # save the model, if required
-        epoch_num = idx_epoch + 1 + self.epoch_offset
+        epoch_num = idx_epoch + 1
         model_root_path = self.model_root_path
 
         model_path = '%s/%03d.model' % (model_root_path, epoch_num)

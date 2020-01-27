@@ -2,5 +2,5 @@ numpy
 opencv
 scikit-learn
 
-keras
-tensorflow-gpu
+keras=2.2.4
+tensorflow-gpu=1.10.0
