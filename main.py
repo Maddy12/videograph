@@ -36,7 +36,7 @@ from analysis import an_breakfast
 ########################################################################
 ########################################################################
 # 0.1 Preparing the projects
-# Make sure the root directories are correctly modified
+# Make sure the root directories are correctly set
 # core.configs.DATA_ROOT_PATH = '???'
 # core.configs.PROJECT_ROOT_PATH = '????'
 

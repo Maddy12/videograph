@@ -52,6 +52,12 @@ Overview diagram of the proposed VideoGraph. It takes as input a video segment s
 
 ### Installation
 
+**How to Use?**
+
+Please start from the `main.py` file. You will find code to reproduce the paper results on three datasets: `Epic-Kitchens`, `Charades` and `Breakfast`.
+
+**Python Packages**
+
 We use python 2.7.15, provided by Anaconda 4.6.2, and we depend on the following python packages.
 - Keras 2.2.4
 - Tensorflow 1.10.1
