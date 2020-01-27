@@ -763,11 +763,7 @@ def __sample_frames_for_non_local(frames, n_required):
 # region 3.0 Extract Features
 
 def _301_extract_features_i3d():
-    n_frames_per_video = 128
-    n_frames_per_video = 256
     n_frames_per_video = 512
-    n_frames_per_video = 1024
-
     feature_name = 'mixed_5c'
     annot_actions_path = Pth('Breakfast/annotation/annot_unit_actions.pkl')
     annot_activities_path = Pth('Breakfast/annotation/annot_activities.pkl')

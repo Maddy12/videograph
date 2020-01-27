@@ -21,7 +21,7 @@
 ########################################################################
 
 """
-This experiment is for EPIC-Kitchens dataset
+This experiment is for EPIC-Kitchens dataset.
 """
 
 import os

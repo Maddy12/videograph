@@ -42,7 +42,7 @@ from analysis import an_breakfast
 
 ########################################################################
 ########################################################################
-# 1.0 First, experiments on Breakfast
+# 1.0 Experiments on Breakfast: Single-label Classification (i.e. Activities)
 ########################################################################
 ########################################################################
 
@@ -55,8 +55,6 @@ ds_breakfast._201_extract_frames()
 # We extract features using I3D model, pre-trained on Kinetics.
 ds_breakfast._301_extract_features_i3d()
 # Generate initial values of centroids, once and for all
-ds_breakfast._501_generate_centroids(n_centroids=32, n_dims=1024)
-ds_breakfast._501_generate_centroids(n_centroids=64, n_dims=1024)
 ds_breakfast._501_generate_centroids(n_centroids=128, n_dims=1024)
 
 #########################
@@ -75,10 +73,22 @@ exp_breakfast_activities.train_model_on_video_features_i3d()
 #########################
 # here, you can find code to reproduce the graph diagram, see figure 7 in the paper.
 an_breakfast._07_visualize_graph_edges()
+exp_breakfast_unit_actions.train_model_on_pickled_features()
 
 ########################################################################
 ########################################################################
-# 2.0 Second, experiments on Epic-Kitchens
+# 2.0 Experiments on Breakfast: Multi-label Classification (i.e. Unit-actions)
+########################################################################
+########################################################################
+
+#########################
+# 2.2 Train Models
+#########################
+
+
+########################################################################
+########################################################################
+# 3.0 Experiments on Epic-Kitchens
 ########################################################################
 ########################################################################
 
@@ -87,7 +97,7 @@ an_breakfast._07_visualize_graph_edges()
 # Epic_Kitchens.train_model_videograph()
 
 ########################################################################
-# 3.0 Second, experiments on Charades
+# 4.0 Experiments on Charades
 ########################################################################
 # train videograph on features of Charades
 # from experiments import Charades

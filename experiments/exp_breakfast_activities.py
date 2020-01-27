@@ -76,7 +76,7 @@ def train_model_on_pickled_features():
     batch_size_tr = 16
     batch_size_te = 40
     n_centroids = 128
-    n_epochs = 500
+    n_epochs = 100
     n_classes = N_CLASSES
     n_gpus = 1
 
@@ -115,9 +115,6 @@ def train_model_on_pickled_features():
     print ('... centroids: %s' % (centroids_path))
     t1 = time.time()
     (x_tr, x_te) = utils.h5_load_multi(features_path, ['x_tr', 'x_te'])
-    if is_spatial_pooling:
-        x_tr = np.reshape(x_tr, (x_tr.shape[0], x_tr.shape[1], 1, 1, x_tr.shape[2]))
-        x_te = np.reshape(x_te, (x_te.shape[0], x_te.shape[1], 1, 1, x_te.shape[2]))
     t2 = time.time()
     duration = t2 - t1
     print ('... data loaded: %d' % (duration))
