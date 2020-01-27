@@ -49,6 +49,8 @@ from analysis import an_breakfast
 #########################
 # 1.1 Prepare Data
 #########################
+# extract frames from videos
+ds_breakfast._201_extract_frames()
 # If during the taining you find any missing annotation file, please search in 'ds_breakfast.py' and seen how to re-generate it.
 # We extract features using I3D model, pre-trained on Kinetics.
 ds_breakfast._301_extract_features_i3d()
@@ -65,28 +67,28 @@ ds_breakfast._501_generate_centroids(n_centroids=128, n_dims=1024)
 ds_breakfast._401_pickle_features_i3d_mixed_5c()
 exp_breakfast_activities.train_model_on_pickled_features()
 # Or train on features, where the features of each video is pickled in one pkl file, and loaded on demand for each batch
+# make dure to edit the model trained
 exp_breakfast_activities.train_model_on_video_features_i3d()
 
 #########################
 # 1.3 Visualize Results
 #########################
-an_breakfast
-
-
-########################################################################
-# 2.0 Second, experiments on Charades
-########################################################################
-# train videograph on features of Charades
-# from experiments import Charades
-# Charades.train_model_videograph()
-
+# here, you can find code to reproduce the graph diagram, see figure 7 in the paper.
+an_breakfast._07_visualize_graph_edges()
 
 ########################################################################
 ########################################################################
-# 3.0 Second, experiments on Epic-Kitchens
+# 2.0 Second, experiments on Epic-Kitchens
 ########################################################################
 ########################################################################
 
 # train videograph on features of Epic_Kitchens
 # from experiments import Epic_Kitchens
 # Epic_Kitchens.train_model_videograph()
+
+########################################################################
+# 3.0 Second, experiments on Charades
+########################################################################
+# train videograph on features of Charades
+# from experiments import Charades
+# Charades.train_model_videograph()

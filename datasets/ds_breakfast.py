@@ -559,19 +559,29 @@ def __get_idx_matrix(n_ids_dict):
 
 # region 2.0 Sample Frames
 
-def _201_extract_frames(begin_num, end_num):
+def _201_extract_frames():
+    """
+    This function extracts all frames from all the videos in the dataset.
+    Make sure to download the dataset from http://serre-lab.clps.brown.edu/resource/breakfast-actions-dataset/#Downloads
+    Then save all videos under one directory. For example, for Person "P05", the videos are stored in
+    Breakfast/videos/P05/stereo/P05_milk_ch0.avi
+    Breakfast/videos/P05/stereo/P05_milk_ch1.avi
+    Breakfast/videos/P05/stereo/........
+    Breakfast/videos/P05/cam01/P05_cereals.avi
+    Breakfast/videos/P05/cam01/P05_coffee.avi
+    Breakfast/videos/P05/cam01/....
+    Breakfast/videos/P05/.....
+    And so on, so forth.
+    """
+
     annot_activities_path = Pth('Breakfast/annotation/annot_activities.pkl')
     (video_relative_pathes_tr, _, video_relative_pathes_te, _) = utils.pkl_load(annot_activities_path)
 
     video_relative_pathes = np.hstack((video_relative_pathes_tr, video_relative_pathes_te))
     n_videos = len(video_relative_pathes)
-
     image_name_format = '%s/%06d.jpg'
 
     for idx_video, video_relative_path in enumerate(video_relative_pathes):
-
-        if idx_video < begin_num or idx_video >= end_num:
-            continue
 
         t1 = time.time()
         video_id = __video_relative_path_to_video_id(video_relative_path)
@@ -586,15 +596,15 @@ def _201_extract_frames(begin_num, end_num):
         video_utils.video_save_frames(video_path, video_frames_root_path, image_name_format, c.RESIZE_TYPES[1])
         t2 = time.time()
         duration = t2 - t1
-        print ('%03d/%03d, %d sec' % (idx_video + 1, end_num, duration))
+        print ('%03d/%03d, %d sec' % (idx_video + 1, n_videos, duration))
 
 def _202_sample_frames_i3d():
     """
     Uniformly sample sequences of frames form each video. Each sequences consists of 8 successive frames.
     """
-    n_frames_per_video = 512
-    n_frames_per_video = 256
     n_frames_per_video = 128
+    n_frames_per_video = 256
+    n_frames_per_video = 512
     n_frames_per_video = 1024
     model_type = 'i3d'
 
@@ -675,27 +685,6 @@ def __sample_frames(video_relative_pathes, n_frames_per_video, model_type):
         video_frames_dict[video_id] = video_frame_names
 
     return video_frames_dict
-
-def __sample_frames_for_i_dont_know(frames, n_required):
-    # get n frames
-    n_frames = len(frames)
-
-    if n_frames < n_required:
-        repeats = int(n_required / float(n_frames)) + 1
-        idx = np.arange(0, n_frames).tolist()
-        idx = idx * repeats
-        idx = idx[:n_required]
-    elif n_frames == n_required:
-        idx = np.arange(n_required)
-    else:
-        start_idx = int((n_frames - n_required) / 2.0)
-        stop_idx = start_idx + n_required
-        idx = np.arange(start_idx, stop_idx)
-
-    sampled_frames = np.array(frames)[idx]
-    assert len(idx) == n_required
-    assert len(sampled_frames) == n_required
-    return sampled_frames
 
 def __sample_frames_for_resnet(frames, n_required):
     # get n frames from all over the video
